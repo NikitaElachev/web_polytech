@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Мои подборки</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">Добавить подборку</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Количество книг</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for col in collections %}
+        <tr>
+            <td>{{ col.name }}</td>
+            <td>{{ col.books|length }}</td>
+            <td>
+                <a href="{{ url_for('view_collection', collection_id=col.id) }}" class="btn btn-primary btn-sm">Просмотр</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Модальное окно создания подборки -->
+<div class="modal fade" id="createCollectionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_collection') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Новая подборка</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="name" class="form-control" placeholder="Название подборки" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

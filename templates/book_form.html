@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import render_book_form %}
+{% block content %}
+<h2>{{ action }} книгу</h2>
+{{ render_book_form(action, book, genres) }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const easyMDE = new EasyMDE({element: document.getElementById('markdown-editor')});
+</script>
+{% endblock %}
