@@ -206,10 +206,13 @@ def edit_book(book_id):
 def delete_book(book_id):
     book = db.get_or_404(Book, book_id)
     try:
-        # Удаление файла с диска
         if book.cover:
             file_path = os.path.join(UPLOAD_FOLDER, book.cover.file_name)
-            if os.path.exists(file_path):
+            # Считаем сколько записей в БД используют этот же файл
+            usage_count = Cover.query.filter_by(file_name=book.cover.file_name).count()
+            
+            # Удаляем файл с диска только если это последняя книга с такой обложкой
+            if usage_count <= 1 and os.path.exists(file_path):
                 os.remove(file_path)
         
         db.session.delete(book)
@@ -236,8 +239,12 @@ def view_book(book_id):
     if current_user.is_authenticated and current_user.role.name == 'Пользователь':
         user_collections = Collection.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('book_view.html', book=book, user_review=user_review, user_collections=user_collections)
+    # Конвертация Markdown в HTML для отображения рецензий
+    for review in book.reviews:
+        review.text = markdown.markdown(review.text)
 
+    return render_template('book_view.html', book=book, user_review=user_review, user_collections=user_collections)
+    
 # Форма создания рецензии на книгу
 @app.route('/book/<int:book_id>/review', methods=['GET', 'POST'])
 @login_required
