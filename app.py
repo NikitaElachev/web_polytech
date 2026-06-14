@@ -29,7 +29,6 @@ login_manager.login_message_category = 'warning'
 # Функция для получения текущего пользователя
 @login_manager.user_loader
 def load_user(user_id):
-    # Используем современный метод db.session.get вместо устаревшего Query.get
     return db.session.get(User, int(user_id))
 
 # Декоратор для проверки прав доступа по ролям
@@ -47,7 +46,8 @@ def require_role(*roles):
 # Функция для очистки текста от потенциально опасных HTML тегов
 def sanitize_html(text):
     allowed_tags = ['p', 'b', 'i', 'u', 'em', 'strong', 'a', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'br']
-    return bleach.clean(text, tags=allowed_tags, strip=True)
+    allowed_attrs = {'a': ['href', 'title']}
+    return bleach.clean(text, tags=allowed_tags, attributes=allowed_attrs, strip=True)
 
 # Главная страница со списком книг и пагинацией
 @app.route('/')
@@ -106,7 +106,7 @@ def add_book():
             if genre:
                 temp_book.genres.append(genre)
 
-        # Серверная валидация пустого описания (чтобы исключить пробелы)
+        # Серверная валидация пустого описания
         clean_description = sanitize_html(temp_book.short_description).strip()
         if not clean_description:
             flash('Поле "Краткое описание" обязательно для заполнения.', 'danger')
